@@ -8,8 +8,6 @@
 int pos_neg();
 // randomly returns the number of terms for a clause
 int n_clause_terms(int n_terms);
-// randomly returns a number within the range of terms
-int r_term(int n_terms);          					// TODO: might be needlessly redundant.....
 
 // detects duplicate terms
 int contains(int* terms, int term, int terms_per_clause);
@@ -33,17 +31,20 @@ int main(int argc, char* argv[])
 	int n_clauses = 0;
 
 	int clause_pos = 0; // indexer
-	char* parsed_term; // integer parsed to a string
+	char parsed_term[5]; // integer parsed to a string  // term will never be more than 5 digits long????
+
+	// seeds for random calls
+	int seed = 0;  
 
 	// sanity checks
 	//	check for correct number of args
-	if(argc != 3)
+	if(argc != 4)
 	{
-		printf("Please enter exactly 2 arguments!\n");
+		printf("Please enter exactly 3 arguments!\n");
 		return 0;
 	}
 	//	check for correct format of args, non positive values are not acceptable in either case.
-	if((n_terms = atoi(argv[1]) < 1) || (n_clauses = atoi(argv[2]) < 1))
+	if((n_terms = atoi(argv[1]) < 1) || (n_clauses = atoi(argv[2]) < 1) || (n_clauses = atoi(argv[3]) < 1))
 	{
 		printf("Invalid args!!\n");
 		return 0;
@@ -53,45 +54,37 @@ int main(int argc, char* argv[])
 
 	// write the header...
 	fwrite("c\n", 1, 2, f);
-	fwrite("c\n", 1, 2, f);  // TODO: comments...???..??
-	fwrite("c\n", 1, 2, f);
-	fwrite("c\n", 1, 2, f);
 	fwrite("p cnf ", 1, 6, f);
 	fwrite(argv[1], 1, strlen(argv[1]), f);  // terms
 	fwrite(" ", 1, 1, f);
 	fwrite(argv[2], 1, strlen(argv[2]), f);  // clauses
 	fwrite("\n", 1, 1, f);
 
+	// grab args
 	n_terms = atoi(argv[1]);
 	n_clauses = atoi(argv[2]);
-	//printf("n_clauses: %d\n", n_clauses);
+	seed = atoi(argv[3]);
+
+	srandom(seed);// set seed
 
 	while(n_clauses > 0)
 	{
 		// get how many terms the current clause will contain
-		terms_per_clause = n_clause_terms(n_terms);
+		terms_per_clause = n_clause_terms(n_terms);         
 
 		// allocate terms array
 		terms = calloc(terms_per_clause, sizeof(int));
 
 		// fill the clause array
-		make_clause(terms, terms_per_clause);  // <-- function is suspect...
+		make_clause(terms, terms_per_clause);  
 
-		// reset
 		clause_pos = 0; 
-		parsed_term = "";
-
 
 		// write the clause
 		while(clause_pos < terms_per_clause)
-		{
-			printf("bus error?\n");
-			printf("terms[clause_pos]: %d", terms[clause_pos]);
-
+		{	
 			// parse the current term to a string
-		 	sprintf(parsed_term, "%d", terms[clause_pos]); // <-- SEG FAULT!!
-
-			
+		 	sprintf(parsed_term, "%d", terms[clause_pos]); 
 
 			// if positive
 			if(pos_neg() == 1)
@@ -127,13 +120,13 @@ int main(int argc, char* argv[])
 // 0 for negative, 1 for positive
 int pos_neg()
 {
-	return (rand() % 2);
+	return (random() % 2);  
 }
 
 // return randomly generated 1 - n_terms number.
 int n_clause_terms(int n_terms)
 {
-	return ((rand() % n_terms) + 1); // <-- no zeroes!, can't have zero terms per clause or zero clauses
+	return ((random() % n_terms) + 1); // <-- no zeroes!, can't have zero terms per clause or zero clauses     
 }
 
 void make_clause(int* terms, int terms_per_clause)
@@ -144,7 +137,7 @@ void make_clause(int* terms, int terms_per_clause)
 	while(pos < terms_per_clause) // suspect
 	{
 		// get a random number
-		term = n_clause_terms(terms_per_clause);
+		term = n_clause_terms(terms_per_clause);       
 
 		// if the terms array already contains the randomly generated term.
 		if(contains(terms, term, terms_per_clause) == 1)
@@ -157,13 +150,12 @@ void make_clause(int* terms, int terms_per_clause)
 			assert(term > 0);
 			terms[pos] = term;
 
-			printf("terms[pos]: %d\n", terms[pos]);
-
 			pos++;
 		}
 	}
 }
 
+// used to eliminate duplicate terms within a clause
 int contains(int* terms, int term, int terms_per_clause)
 {
 	int pos = 0;
