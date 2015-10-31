@@ -1,4 +1,4 @@
-// generates random dimacs file via arguments for number of terms and clauses(respectivly).
+// generates random dimacs file via arguments for number of terms, clauses, and seed(respectivly).
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
