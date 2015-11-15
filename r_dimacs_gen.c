@@ -13,7 +13,7 @@ int n_clause_terms(int n_terms);
 int contains(int* terms, int term, int terms_per_clause);
 
 //make a clause
-void make_clause(int* clause, int terms_per_clause);
+void make_clause(int* clause, int terms_per_clause, int n_terms);
 
 // holds the current clause' terms
 int* terms;
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 		terms = calloc(terms_per_clause, sizeof(int));
 
 		// fill the clause array
-		make_clause(terms, terms_per_clause);  
+		make_clause(terms, terms_per_clause, n_terms);  
 
 		clause_pos = 0; 
 
@@ -129,15 +129,16 @@ int n_clause_terms(int n_terms)
 	return ((random() % n_terms) + 1); // <-- no zeroes!, can't have zero terms per clause or zero clauses     
 }
 
-void make_clause(int* terms, int terms_per_clause)
+void make_clause(int* terms, int terms_per_clause, int n_terms)
 {
 	int pos = 0;
 	int term = 0;
 
-	while(pos < terms_per_clause) // suspect
+	while(pos < terms_per_clause) 
+	//while(pos < n_terms) 
 	{
 		// get a random number
-		term = n_clause_terms(terms_per_clause);       
+		term = n_clause_terms(n_terms);       
 
 		// if the terms array already contains the randomly generated term.
 		if(contains(terms, term, terms_per_clause) == 1)
